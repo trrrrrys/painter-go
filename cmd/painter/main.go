@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -9,6 +10,15 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
+
+var (
+	settingFile string
+)
+
+func init() {
+	flag.StringVar(&settingFile, "f", "./example.yaml", "setting yaml file")
+	flag.Parse()
+}
 
 const (
 	// man console_codes
@@ -30,11 +40,11 @@ var colorMap = map[string]int{
 	"blue":   colorBlue,
 }
 
-type St struct {
+type Palette struct {
 	Keywords []*Keyword `yaml:"Keywords"`
 }
 
-func (s *St) Print(str string) {
+func (s *Palette) Painting(str string) {
 	for _, v := range s.Keywords {
 		if strings.Contains(str, v.Word) {
 			fmt.Fprintf(stdout, "\x1b[%vm%s\x1b[0m\n", colorMap[v.Color], str)
@@ -50,11 +60,11 @@ type Keyword struct {
 }
 
 func main() {
-	f, err := os.ReadFile("./sample.yaml")
+	f, err := os.ReadFile(settingFile)
 	if err != nil {
 		panic(err)
 	}
-	var v St
+	var v Palette
 	if err := yaml.Unmarshal(f, &v); err != nil {
 		panic(err)
 	}
@@ -62,7 +72,7 @@ func main() {
 	scanner := bufio.NewScanner(stdin)
 	for scanner.Scan() {
 		s := scanner.Text()
-		v.Print(s)
+		v.Painting(s)
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
