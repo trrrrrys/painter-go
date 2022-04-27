@@ -1,0 +1,9 @@
+Keywords:
+- Keyword: ERROR
+  Color: red
+- Keyword: FATAL
+  Color: red
+- Keyword: OK
+  Color: green
+- Keyword: DEBUG
+  Color: yellow
