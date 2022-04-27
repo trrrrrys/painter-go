@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -11,14 +12,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	settingFile string
-)
+var settingFile string
 
 func init() {
-	flag.StringVar(&settingFile, "f", "./example.yaml", "setting yaml file")
+	flag.StringVar(&settingFile, "f", "", "setting yaml file")
 	flag.Parse()
 }
+
+//go:embed example.yaml
+var yamlData []byte
 
 const (
 	// man console_codes
@@ -60,12 +62,19 @@ type Keyword struct {
 }
 
 func main() {
-	f, err := os.ReadFile(settingFile)
+	var b []byte
+	_, err := os.Stat(settingFile)
 	if err != nil {
-		panic(err)
+		b = yamlData
+	} else {
+		f, err := os.ReadFile(settingFile)
+		if err != nil {
+			panic(err)
+		}
+		b = f
 	}
 	var v Palette
-	if err := yaml.Unmarshal(f, &v); err != nil {
+	if err := yaml.Unmarshal(b, &v); err != nil {
 		panic(err)
 	}
 
