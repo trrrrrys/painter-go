@@ -5,5 +5,7 @@ Keywords:
   Color: red
 - Keyword: OK
   Color: green
+- Keyword: INFO
+  Color: green
 - Keyword: DEBUG
   Color: yellow

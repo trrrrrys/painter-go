@@ -21,7 +21,7 @@ func init() {
 	flag.StringVar(&settingFile, "f", "", "setting yaml file")
 }
 
-//go:embed example.yaml
+//go:embed default.yaml
 var yamlData []byte
 
 const (
