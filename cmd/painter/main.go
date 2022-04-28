@@ -12,11 +12,13 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var settingFile string
+// options
+var (
+	settingFile string
+)
 
 func init() {
 	flag.StringVar(&settingFile, "f", "", "setting yaml file")
-	flag.Parse()
 }
 
 //go:embed example.yaml
@@ -30,10 +32,7 @@ const (
 	colorBlue               // 33
 )
 
-var (
-	stdin  = os.Stdin
-	stdout = os.Stdout
-)
+var out = os.Stdout
 
 var colorMap = map[string]int{
 	"red":    colorRed,
@@ -49,11 +48,11 @@ type Palette struct {
 func (s *Palette) Painting(str string) {
 	for _, v := range s.Keywords {
 		if strings.Contains(str, v.Word) {
-			fmt.Fprintf(stdout, "\x1b[%vm%s\x1b[0m\n", colorMap[v.Color], str)
+			fmt.Fprintf(out, "\x1b[%vm%s\x1b[0m\n", colorMap[v.Color], str)
 			return
 		}
 	}
-	fmt.Fprintf(stdout, "%s\n", str)
+	fmt.Fprintf(out, "%s\n", str)
 }
 
 type Keyword struct {
@@ -62,6 +61,7 @@ type Keyword struct {
 }
 
 func main() {
+	flag.Parse()
 	var b []byte
 	_, err := os.Stat(settingFile)
 	if err != nil {
@@ -77,8 +77,7 @@ func main() {
 	if err := yaml.Unmarshal(b, &v); err != nil {
 		panic(err)
 	}
-
-	scanner := bufio.NewScanner(stdin)
+	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		s := scanner.Text()
 		v.Painting(s)
