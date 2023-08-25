@@ -63,6 +63,7 @@ type Keyword struct {
 func main() {
 	flag.Parse()
 	var b []byte
+	// check file exits
 	_, err := os.Stat(settingFile)
 	if err != nil {
 		b = yamlData

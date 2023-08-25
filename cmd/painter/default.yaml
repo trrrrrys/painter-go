@@ -1,6 +1,8 @@
 Keywords:
 - Keyword: ERROR
   Color: red
+- Keyword: FAIL
+  Color: red
 - Keyword: FATAL
   Color: red
 - Keyword: OK
