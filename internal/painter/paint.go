@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -24,9 +25,12 @@ type Palette struct {
 }
 
 type PaletteOptions struct {
-	paletteBytes     []byte
-	output           io.Writer
-	enableJSONIndent bool
+	enableDefaultSetting *bool
+	enableRegex          *bool
+	Keywords             []*KeywordColor
+	paletteBytes         []byte
+	output               io.Writer
+	enableJSONIndent     bool
 }
 
 type PaletteOption func(*PaletteOptions)
@@ -48,52 +52,90 @@ func WithEnableJSONIndent(enabled bool) func(*PaletteOptions) {
 	}
 }
 
+func WithEnableDefaultSetting(enabled bool) func(*PaletteOptions) {
+	return func(o *PaletteOptions) {
+		enabled := enabled
+		o.enableDefaultSetting = &enabled
+	}
+}
+
+func WithEnableRegex(enabled bool) func(*PaletteOptions) {
+	return func(o *PaletteOptions) {
+		enabled := enabled
+		o.enableRegex = &enabled
+	}
+}
+
+func WithKeyword(keyword, color string, onlyKeyword bool) func(*PaletteOptions) {
+	return func(o *PaletteOptions) {
+		o.Keywords = append(o.Keywords, &KeywordColor{Keyword: keyword, Color: color, Partial: onlyKeyword})
+	}
+}
+
 func NewPalette(opts ...PaletteOption) *Palette {
 	var o PaletteOptions
 	for _, opt := range opts {
 		opt(&o)
 	}
-	if len(o.paletteBytes) == 0 {
-		o.paletteBytes = defaultPalette
-	}
 	var p Palette
-	if err := yaml.Unmarshal(o.paletteBytes, &p); err != nil {
-		return nil
+	if o.enableDefaultSetting == nil || *o.enableDefaultSetting {
+		if len(o.paletteBytes) == 0 {
+			o.paletteBytes = defaultPalette
+		}
+		if err := yaml.Unmarshal(o.paletteBytes, &p); err != nil {
+			return nil
+		}
 	}
-	p.init(o)
-	return &p
-}
-
-func (p *Palette) init(options PaletteOptions) {
+	if o.enableRegex != nil {
+		p.Regex = *o.enableRegex
+	}
+	if len(o.Keywords) > 0 {
+		p.Keywords = append(p.Keywords, o.Keywords...)
+	}
 	if p.Regex {
 		for _, v := range p.Keywords {
 			p.keywordRegex = append(p.keywordRegex, regexp.MustCompile(v.Keyword))
 		}
 	}
-	if options.output != nil {
-		p.out = options.output
+	if o.output != nil {
+		p.out = o.output
 	} else {
 		p.out = os.Stdout
 	}
-	p.enableJSONIndent = options.enableJSONIndent
+	p.enableJSONIndent = o.enableJSONIndent
+	return &p
 }
 
 func (p *Palette) setColor(str string) string {
+	coloredStr := str
 	if p.Regex {
 		for i, r := range p.keywordRegex {
-			if r.MatchString(str) {
-				return fmt.Sprint(colorMap[p.Keywords[i].Color].Sprintf(str))
+			if r.MatchString(coloredStr) {
+				c := colorMap[p.Keywords[i].Color]
+				if p.Keywords[i].Partial {
+					coloredStr = r.ReplaceAllStringFunc(coloredStr, func(match string) string {
+						return c.Sprintf(match)
+					})
+				} else {
+					return c.Sprintf(coloredStr)
+				}
 			}
 		}
 	} else {
 		for _, v := range p.Keywords {
-			return fmt.Sprint(colorMap[v.Color].Sprintf(str))
+			if strings.Contains(coloredStr, v.Keyword) {
+				if v.Partial {
+					coloredStr = strings.ReplaceAll(coloredStr, v.Keyword, colorMap[v.Color].Sprintf(v.Keyword))
+				} else {
+					return fmt.Sprint(colorMap[v.Color].Sprintf(coloredStr))
+				}
+			}
 		}
 	}
-	return str
+	return coloredStr
 }
 
-func (p *Palette) Painting(str string) {
+func (p *Palette) Paint(str string) {
 	fmt.Fprint(p.out, p.setColor(str)+"\n")
 }
 
@@ -111,4 +153,5 @@ func (p *Palette) Write(b []byte) (int, error) {
 type KeywordColor struct {
 	Keyword string `yaml:"Keyword"`
 	Color   string `yaml:"Color"`
+	Partial bool   `yaml:"Partial"`
 }

@@ -6,11 +6,13 @@ type (
 	PaletteOption = painter.PaletteOption
 )
 
-var (
-	NewPalette = painter.NewPalette
+var NewPalette = painter.NewPalette
 
-	// options
-	WithPaletteBytes     = painter.WithPaletteBytes
-	WithPaletteOutput    = painter.WithPaletteOutput
-	WithEnableJSONIndent = painter.WithEnableJSONIndent
+var (
+	WithPaletteBytes         = painter.WithPaletteBytes
+	WithPaletteOutput        = painter.WithPaletteOutput
+	WithEnableJSONIndent     = painter.WithEnableJSONIndent
+	WithEnableDefaultSetting = painter.WithEnableDefaultSetting
+	WithEnableRegex          = painter.WithEnableRegex
+	WithKeyword              = painter.WithKeyword
 )

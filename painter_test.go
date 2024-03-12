@@ -49,6 +49,15 @@ func TestPainter(t *testing.T) {
 				painter.WithEnableJSONIndent(true),
 			},
 		},
+		{
+			"6. partial highlight",
+			"Partial: this is partial highlight.",
+			internal.ColorGreen.Sprintf("Partial:") + " this is partial highlight.",
+			[]painter.PaletteOption{
+				painter.WithEnableDefaultSetting(false),
+				painter.WithKeyword("Partial:", "green", true),
+			},
+		},
 	}
 	for _, tt := range tests {
 		tt := tt

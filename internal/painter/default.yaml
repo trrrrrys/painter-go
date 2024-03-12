@@ -18,11 +18,12 @@ Keywords:
   Color: green
 - Keyword: INFO
   Color: green
+  Partial: true
 - Keyword: DEBUG
   Color: yellow
-- Keyword: ^\s*\+\s*
+- Keyword: ^\s+\+\s+
   Color: green
-- Keyword: ^\s*-\s*
+- Keyword: ^\s+-\s+
   Color: red
 - Keyword: ^\?
   Color: gray

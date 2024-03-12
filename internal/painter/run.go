@@ -17,7 +17,7 @@ func Run() error {
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		s := scanner.Text()
-		palette.Painting(s)
+		palette.Paint(s)
 	}
 	if err := scanner.Err(); err != nil {
 		return err
