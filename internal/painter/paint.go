@@ -1,7 +1,9 @@
 package painter
 
 import (
+	"bytes"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -14,27 +16,35 @@ import (
 var defaultPalette []byte
 
 type Palette struct {
-	Regex        bool            `yaml:"Regex"`
-	Keywords     []*KeywordColor `yaml:"Keywords"`
-	keywordRegex []*regexp.Regexp
-	out          io.Writer
+	Regex            bool            `yaml:"Regex"`
+	Keywords         []*KeywordColor `yaml:"Keywords"`
+	keywordRegex     []*regexp.Regexp
+	out              io.Writer
+	enableJSONIndent bool
 }
 
 type PaletteOptions struct {
-	PaletteBytes []byte
-	Output       io.Writer
+	paletteBytes     []byte
+	output           io.Writer
+	enableJSONIndent bool
 }
 
 type PaletteOption func(*PaletteOptions)
 
 func WithPaletteBytes(b []byte) func(*PaletteOptions) {
 	return func(o *PaletteOptions) {
-		o.PaletteBytes = b
+		o.paletteBytes = b
 	}
 }
 func WithPaletteOutput(w io.Writer) func(*PaletteOptions) {
 	return func(o *PaletteOptions) {
-		o.Output = w
+		o.output = w
+	}
+}
+
+func WithEnableJSONIndent(enabled bool) func(*PaletteOptions) {
+	return func(o *PaletteOptions) {
+		o.enableJSONIndent = enabled
 	}
 }
 
@@ -43,29 +53,29 @@ func NewPalette(opts ...PaletteOption) *Palette {
 	for _, opt := range opts {
 		opt(&o)
 	}
-	if len(o.PaletteBytes) == 0 {
-		o.PaletteBytes = defaultPalette
+	if len(o.paletteBytes) == 0 {
+		o.paletteBytes = defaultPalette
 	}
 	var p Palette
-	if err := yaml.Unmarshal(o.PaletteBytes, &p); err != nil {
+	if err := yaml.Unmarshal(o.paletteBytes, &p); err != nil {
 		return nil
 	}
-	if o.Output != nil {
-		p.out = o.Output
-	}
-	p.init()
+	p.init(o)
 	return &p
 }
 
-func (p *Palette) init() {
+func (p *Palette) init(options PaletteOptions) {
 	if p.Regex {
 		for _, v := range p.Keywords {
 			p.keywordRegex = append(p.keywordRegex, regexp.MustCompile(v.Keyword))
 		}
 	}
-	if p.out == nil {
+	if options.output != nil {
+		p.out = options.output
+	} else {
 		p.out = os.Stdout
 	}
+	p.enableJSONIndent = options.enableJSONIndent
 }
 
 func (p *Palette) setColor(str string) string {
@@ -88,8 +98,14 @@ func (p *Palette) Painting(str string) {
 }
 
 func (p *Palette) Write(b []byte) (int, error) {
-	fmt.Fprint(p.out, p.setColor(string(b)))
-	return len(b), nil
+	if p.enableJSONIndent {
+		var buf bytes.Buffer
+		err := json.Indent(&buf, b, "", "  ")
+		if err == nil {
+			return fmt.Fprint(p.out, p.setColor(buf.String()))
+		}
+	}
+	return fmt.Fprint(p.out, p.setColor(string(b)))
 }
 
 type KeywordColor struct {
