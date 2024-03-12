@@ -18,7 +18,6 @@ Keywords:
   Color: green
 - Keyword: INFO
   Color: green
-  Partial: true
 - Keyword: DEBUG
   Color: yellow
 - Keyword: ^\s+\+\s+
