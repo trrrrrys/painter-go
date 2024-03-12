@@ -6,7 +6,7 @@ Keywords:
   Color: red
 - Keyword: "FAIL:"
   Color: red
-- Keyword: "^FAIL"
+- Keyword: ^FAIL
   Color: red
 - Keyword: FATAL
   Color: red
@@ -18,8 +18,6 @@ Keywords:
   Color: green
 - Keyword: INFO
   Color: green
-- Keyword: DEBUG
-  Color: yellow
 - Keyword: ^\s+\+\s+
   Color: green
 - Keyword: ^\s+-\s+

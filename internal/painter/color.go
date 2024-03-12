@@ -1,11 +1,29 @@
 package painter
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Color string
 
 func (c Color) Sprintf(format string, args ...interface{}) string {
-	return fmt.Sprintf("\x1b[%vm%s\x1b[0m", c, fmt.Sprintf(format, args...))
+	return fmt.Sprintf("%s%s%s", c.Intro(), fmt.Sprintf(format, args...), c.Reset())
+}
+
+func (c Color) Intro() string {
+	if c == "" {
+		return ""
+	}
+	return fmt.Sprintf("\x1b[%vm", c)
+}
+
+func (c Color) Reset() string {
+	return "\x1b[0m"
+}
+
+func (c Color) MustCompile() *regexp.Regexp {
+	return regexp.MustCompile(fmt.Sprintf("\x1b[%vm", c))
 }
 
 const (

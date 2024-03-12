@@ -114,6 +114,10 @@ func (p *Palette) setColor(str string) string {
 				c := colorMap[p.Keywords[i].Color]
 				if p.Keywords[i].Partial {
 					coloredStr = r.ReplaceAllStringFunc(coloredStr, func(match string) string {
+						subs := r.FindStringSubmatch(match)
+						if len(subs) > 1 {
+							return strings.ReplaceAll(match, subs[1], c.Sprintf(subs[1]))
+						}
 						return c.Sprintf(match)
 					})
 				} else {
