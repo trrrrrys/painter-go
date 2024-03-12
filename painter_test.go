@@ -1,0 +1,54 @@
+package painter_test
+
+import (
+	"bytes"
+	"fmt"
+	"testing"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/trrrrrys/painter-go"
+	internal "github.com/trrrrrys/painter-go/internal/painter"
+)
+
+func TestPainter(t *testing.T) {
+
+	tests := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			"1. Hello world",
+			"Hello world !!",
+			"Hello world !!",
+		},
+		{
+			"2. Debug log",
+			"DEBUG: this is debug log.",
+			internal.ColorYellow.Sprintf("DEBUG: this is debug log."),
+		},
+		{
+			"3. Error log",
+			"ERROR: this is error log.",
+			internal.ColorRed.Sprintf("ERROR: this is error log."),
+		},
+		{
+			"4. Invalid format",
+			"Error: this is error log.",
+			"Error: this is error log.",
+		},
+	}
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			var buf bytes.Buffer
+			p := painter.NewPalette(
+				painter.WithPaletteOutput(&buf),
+			)
+			fmt.Fprintf(p, tt.in)
+			if diff := cmp.Diff(buf.String(), tt.want); diff != "" {
+				t.Errorf(diff)
+			}
+		})
+	}
+}

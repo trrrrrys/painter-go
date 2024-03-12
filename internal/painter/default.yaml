@@ -1,0 +1,30 @@
+Regex: true
+Keywords:
+- Keyword: DEBUG
+  Color: yellow
+- Keyword: ERROR
+  Color: red
+- Keyword: "FAIL:"
+  Color: red
+- Keyword: "^FAIL"
+  Color: red
+- Keyword: FATAL
+  Color: red
+- Keyword: "OK:"
+  Color: green
+- Keyword: ^ok\s+
+  Color: green
+- Keyword: PASS
+  Color: green
+- Keyword: INFO
+  Color: green
+- Keyword: DEBUG
+  Color: yellow
+- Keyword: ^\s*\+\s*
+  Color: green
+- Keyword: ^\s*-\s*
+  Color: red
+- Keyword: ^\?
+  Color: gray
+- Keyword: ^===\s+RUN
+  Color: cyan
