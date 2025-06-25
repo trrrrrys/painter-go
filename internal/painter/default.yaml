@@ -12,17 +12,17 @@ Keywords:
   Color: red
 - Keyword: "OK:"
   Color: green
-- Keyword: ^ok\s+
+- Keyword: ^ok(\s|\xA0)+
   Color: green
 - Keyword: PASS
   Color: green
 - Keyword: INFO
   Color: green
-- Keyword: ^\s+\+\s+
+- Keyword: ^(\s|\xA0)+\+(\s|\xA0)+
   Color: green
-- Keyword: ^\s+-\s+
+- Keyword: ^(\s|\xA0)+-(\s|\xA0)+
   Color: red
 - Keyword: ^\?
   Color: gray
-- Keyword: ^===\s+RUN
+- Keyword: ^===(\s|\xA0)+RUN
   Color: cyan

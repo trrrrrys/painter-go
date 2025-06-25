@@ -107,7 +107,7 @@ func NewPalette(opts ...PaletteOption) *Palette {
 }
 
 func (p *Palette) setColor(str string) string {
-	coloredStr := str
+	coloredStr := strings.ReplaceAll(str, "%", "%%")
 	if p.Regex {
 		for i, r := range p.keywordRegex {
 			if r.MatchString(coloredStr) {
